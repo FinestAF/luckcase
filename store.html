@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Store — Luck Keys | Looklist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/global.css">
+  <style>
+    body { background: #0a0a0a; }
+
+    .store-header {
+      text-align: center;
+      padding: 40px 0 56px;
+      position: relative;
+    }
+
+    .store-header::after {
+      content: '';
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px; height: 1px;
+      background: var(--gold);
+      opacity: 0.3;
+    }
+
+    .store-balance {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(201,169,110,0.08);
+      border: 1px solid rgba(201,169,110,0.2);
+      border-radius: 2px;
+      padding: 10px 20px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 28px;
+    }
+
+    .store-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 56px;
+    }
+
+    .product-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-card:hover { transform: translateY(-4px); border-color: var(--border-hover); }
+
+    .product-card.featured {
+      border-color: rgba(201,169,110,0.35);
+      box-shadow: 0 0 40px rgba(201,169,110,0.06);
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .pb-best { background: rgba(201,169,110,0.15); color: var(--gold); border: 1px solid rgba(201,169,110,0.3); }
+    .pb-new { background: rgba(126,232,250,0.1); color: var(--diamond); border: 1px solid rgba(126,232,250,0.3); }
+
+    .product-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px 24px;
+      min-height: 160px;
+      position: relative;
+    }
+
+    .product-visual::before {
+      content: '';
+      position: absolute; inset: 0;
+    }
+
+    .product-card.std .product-visual::before {
+      background: radial-gradient(ellipse at center, rgba(138,155,181,0.08) 0%, transparent 70%);
+    }
+
+    .product-card.prem .product-visual::before {
+      background: radial-gradient(ellipse at center, rgba(201,169,110,0.10) 0%, transparent 70%);
+    }
+
+    .product-card.bundle .product-visual::before {
+      background: radial-gradient(ellipse at center, rgba(126,232,250,0.07) 0%, transparent 70%);
+    }
+
+    .product-key-icon {
+      font-size: 80px;
+      position: relative;
+      z-index: 1;
+      animation: productFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes productFloat {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-8px) rotate(5deg); }
+    }
+
+    .product-body {
+      padding: 0 28px 28px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .product-card.std .product-name { color: var(--silver); }
+    .product-card.prem .product-name { color: var(--gold); }
+    .product-card.bundle .product-name { color: var(--diamond); }
+
+    .product-qty {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .product-features {
+      list-style: none;
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    .product-features li {
+      font-size: 13px;
+      color: var(--text-dim);
+      padding: 5px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      line-height: 1.4;
+    }
+
+    .product-features li::before {
+      content: '–';
+      color: var(--gold);
+      opacity: 0.5;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .product-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .product-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .product-card.prem .product-price { color: var(--gold); }
+
+    .product-per {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* qty selector */
+    .qty-selector {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .qty-btn {
+      width: 36px; height: 36px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .qty-btn:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+
+    .qty-val {
+      width: 40px;
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+      border: none;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      padding: 0;
+    }
+
+    /* Bundle savings */
+    .bundle-section {
+      margin-bottom: 56px;
+    }
+
+    .bundle-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .bundle-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+    }
+
+    .bundle-chip:hover { border-color: var(--border-hover); background: rgba(255,255,255,0.04); }
+    .bundle-chip.popular { border-color: rgba(201,169,110,0.35); }
+
+    .bundle-chip .pop-label {
+      position: absolute;
+      top: -10px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: #0a0a0a;
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      padding: 3px 10px;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+
+    .bundle-keys { font-size: 24px; margin-bottom: 4px; }
+    .bundle-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .bundle-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .bundle-save {
+      font-size: 11px;
+      color: #5ebd82;
+      margin-top: 4px;
+    }
+
+    .buy-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      border: none;
+      border-radius: 2px;
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: #0a0a0a;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .buy-btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.4s;
+    }
+    .buy-btn:hover::before { left: 100%; }
+    .buy-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(201,169,110,0.35); }
+
+    .buy-btn.outline-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      letter-spacing: 0.06em;
+    }
+    .buy-btn.outline-btn:hover { border-color: var(--border-hover); color: var(--text); box-shadow: none; }
+
+    /* Owned display */
+    .owned-bar {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px 24px;
+      margin-bottom: 40px;
+    }
+
+    .owned-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .owned-icon { font-size: 24px; }
+    .owned-label { font-size: 12px; color: var(--text-dim); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .owned-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .owned-item.std .owned-val { color: var(--silver); }
+    .owned-item.prem .owned-val { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <script src="./js/shared.js"></script>
+  <script>requireAuth(); buildNavbar('store');</script>
+
+  <div class="page-wrap">
+    <div class="store-header">
+      <div class="section-eyebrow">Looklist</div>
+      <h1 class="section-title" style="font-size:48px;">Key Store</h1>
+      <p class="section-sub" style="text-align:center;max-width:500px;margin:12px auto 0;">Purchase keys to unlock beauty accessories. Keys are also earned free from every completed booking.</p>
+    </div>
+
+    <!-- Owned bar -->
+    <div class="owned-bar">
+      <div class="owned-item std">
+        <span class="owned-icon">🔑</span>
+        <div>
+          <div class="owned-label">Standard Keys</div>
+          <div class="owned-val" id="store-std">10</div>
+        </div>
+      </div>
+      <div style="width:1px;height:40px;background:var(--border);"></div>
+      <div class="owned-item prem">
+        <span class="owned-icon">🗝️</span>
+        <div>
+          <div class="owned-label">Premium Keys</div>
+          <div class="owned-val" id="store-prem">10</div>
+        </div>
+      </div>
+      <div style="margin-left:auto;">
+        <a href="open.html" class="btn btn-gold">Open a Box →</a>
+      </div>
+    </div>
+
+    <!-- Main products -->
+    <div class="section-header">
+      <div class="section-eyebrow">Individual Keys</div>
+      <h2 class="section-title">Choose Your Key</h2>
+    </div>
+
+    <div class="store-grid">
+      <!-- Standard Key -->
+      <div class="product-card std">
+        <div class="product-visual">
+          <span class="product-key-icon">🔑</span>
+        </div>
+        <div class="product-body">
+          <div class="product-name">Standard Key</div>
+          <div class="product-qty">Opens 1 Standard Box · 6 Items</div>
+          <ul class="product-features">
+            <li>Minimum 3 Common items guaranteed</li>
+            <li>Minimum 1 Silver or higher guaranteed</li>
+            <li>Gold chance: 5% per slot · Diamond: 1%</li>
+            <li>Typical value £3 – £15 per box</li>
+          </ul>
+          <div class="product-price-row">
+            <div>
+              <div class="product-price">£1.50</div>
+              <span class="product-per">per key</span>
+            </div>
+            <div class="qty-selector">
+              <button class="qty-btn" onclick="changeQty('std',-1)">−</button>
+              <div class="qty-val" id="std-qty">1</div>
+              <button class="qty-btn" onclick="changeQty('std',1)">+</button>
+            </div>
+          </div>
+          <button class="buy-btn" onclick="buyKey('std')">Purchase Standard Key</button>
+        </div>
+      </div>
+
+      <!-- Premium Key -->
+      <div class="product-card prem featured">
+        <div class="product-badge pb-best">Most Popular</div>
+        <div class="product-visual">
+          <span class="product-key-icon" style="animation-delay:0.5s;">🗝️</span>
+        </div>
+        <div class="product-body">
+          <div class="product-name">Premium Key</div>
+          <div class="product-qty">Opens 1 Premium Box · 6 Items</div>
+          <ul class="product-features">
+            <li>Minimum 2 Common + 2 Silver guaranteed</li>
+            <li>Gold/Diamond chance slot included</li>
+            <li>Gold chance: 13% · Diamond: 2%</li>
+            <li>Typical value £10 – £60+ per box</li>
+          </ul>
+          <div class="product-price-row">
+            <div>
+              <div class="product-price">£5.99</div>
+              <span class="product-per">per key</span>
+            </div>
+            <div class="qty-selector">
+              <button class="qty-btn" onclick="changeQty('prem',-1)">−</button>
+              <div class="qty-val" id="prem-qty">1</div>
+              <button class="qty-btn" onclick="changeQty('prem',1)">+</button>
+            </div>
+          </div>
+          <button class="buy-btn" onclick="buyKey('prem')">Purchase Premium Key</button>
+        </div>
+      </div>
+
+      <!-- Bundle key -->
+      <div class="product-card bundle">
+        <div class="product-badge pb-new">Best Value</div>
+        <div class="product-visual">
+          <span class="product-key-icon" style="animation-delay:1s;">🗝️🔑</span>
+        </div>
+        <div class="product-body">
+          <div class="product-name" style="font-size:22px;">Starter Bundle</div>
+          <div class="product-qty">5 Standard + 3 Premium Keys</div>
+          <ul class="product-features">
+            <li>8 keys total — best way to begin</li>
+            <li>Mix of Standard and Premium access</li>
+            <li>Save £3.48 vs buying individually</li>
+            <li>Ideal for new Looklist clients</li>
+          </ul>
+          <div class="product-price-row">
+            <div>
+              <div class="product-price" style="color:var(--diamond);">£24.99</div>
+              <span class="product-per" style="color:#5ebd82;">Save £3.48</span>
+            </div>
+          </div>
+          <button class="buy-btn" onclick="buyBundle()">Purchase Bundle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk bundles -->
+    <div class="bundle-section">
+      <div class="section-header">
+        <div class="section-eyebrow">Bulk Packs</div>
+        <h2 class="section-title">Buy in Volume, Save More</h2>
+      </div>
+      <div class="bundle-grid">
+        <div class="bundle-chip" onclick="buyBulk('std',5,6.50)">
+          <div class="bundle-keys">🔑🔑🔑🔑🔑</div>
+          <div class="bundle-name">5 Standard</div>
+          <div class="bundle-price">£6.50</div>
+          <div class="bundle-save">Save £1.00</div>
+        </div>
+        <div class="bundle-chip popular" onclick="buyBulk('std',10,12.00)">
+          <div class="pop-label">Popular</div>
+          <div class="bundle-keys">🔑 ×10</div>
+          <div class="bundle-name">10 Standard</div>
+          <div class="bundle-price">£12.00</div>
+          <div class="bundle-save">Save £3.00</div>
+        </div>
+        <div class="bundle-chip" onclick="buyBulk('prem',5,27.00)">
+          <div class="bundle-keys">🗝️🗝️🗝️🗝️🗝️</div>
+          <div class="bundle-name">5 Premium</div>
+          <div class="bundle-price">£27.00</div>
+          <div class="bundle-save">Save £2.95</div>
+        </div>
+        <div class="bundle-chip popular" onclick="buyBulk('prem',10,50.00)">
+          <div class="pop-label">Best Value</div>
+          <div class="bundle-keys">🗝️ ×10</div>
+          <div class="bundle-name">10 Premium</div>
+          <div class="bundle-price">£50.00</div>
+          <div class="bundle-save">Save £9.90</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const qtys = { std: 1, prem: 1 };
+    const prices = { std: 1.50, prem: 5.99 };
+
+    function updateOwned() {
+      document.getElementById('store-std').textContent = State.stdKeys;
+      document.getElementById('store-prem').textContent = State.premKeys;
+    }
+    updateOwned();
+
+    function changeQty(type, delta) {
+      qtys[type] = Math.max(1, Math.min(50, qtys[type] + delta));
+      document.getElementById(`${type}-qty`).textContent = qtys[type];
+    }
+
+    function buyKey(type) {
+      const qty = qtys[type];
+      const total = (prices[type] * qty).toFixed(2);
+      if (State.lld < total) {
+        showToast(`Insufficient LLD balance. You need £${total}.`, '');
+        return;
+      }
+      State.lld = State.lld - parseFloat(total);
+      if (type === 'std') State.stdKeys = State.stdKeys + qty;
+      else State.premKeys = State.premKeys + qty;
+      refreshNavbar();
+      updateOwned();
+      showToast(`✅ Purchased ${qty}x ${type === 'std' ? 'Standard' : 'Premium'} Key${qty > 1 ? 's' : ''} for £${total}`, 'gold-toast');
+    }
+
+    function buyBundle() {
+      if (State.lld < 24.99) { showToast('Insufficient LLD balance.'); return; }
+      State.lld = State.lld - 24.99;
+      State.stdKeys = State.stdKeys + 5;
+      State.premKeys = State.premKeys + 3;
+      refreshNavbar();
+      updateOwned();
+      showToast('✅ Starter Bundle purchased! +5 Standard, +3 Premium keys', 'gold-toast');
+    }
+
+    function buyBulk(type, qty, price) {
+      if (State.lld < price) { showToast('Insufficient LLD balance.'); return; }
+      State.lld = State.lld - price;
+      if (type === 'std') State.stdKeys = State.stdKeys + qty;
+      else State.premKeys = State.premKeys + qty;
+      refreshNavbar();
+      updateOwned();
+      showToast(`✅ Purchased ${qty}x ${type === 'std' ? 'Standard' : 'Premium'} Keys for £${price.toFixed(2)}`, 'gold-toast');
+    }
+  </script>
+
+<script>
+(function () {
+  var redirect = sessionStorage.redirect;
+  delete sessionStorage.redirect;
+  if (redirect && redirect !== location.href) {
+    history.replaceState(null, null, redirect);
+  }
+})();
+</script>
+
+</body>
+</html>

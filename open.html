@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Open — Luck Keys | Looklist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/global.css">
+  <style>
+    body { background: #0a0a0a; overflow-x: hidden; }
+
+    /* ---- TYPE SELECTOR ---- */
+    .type-selector {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 48px;
+      justify-content: center;
+    }
+
+    .type-tab {
+      flex: 1;
+      max-width: 280px;
+      padding: 24px 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .type-tab:hover { border-color: var(--border-hover); }
+    .type-tab.active.std { border-color: rgba(184,200,216,0.5); background: rgba(184,200,216,0.05); }
+    .type-tab.active.prem { border-color: rgba(201,169,110,0.5); background: rgba(201,169,110,0.05); }
+
+    .type-tab-icon { font-size: 36px; }
+    .type-tab-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .std .type-tab-name { color: var(--silver); }
+    .prem .type-tab-name { color: var(--gold); }
+    .type-tab-keys { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    /* ---- SPIN TRACK ---- */
+    .spin-arena {
+      position: relative;
+      margin-bottom: 48px;
+    }
+
+    .spin-track-wrap {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* The needle */
+    .spin-needle {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold) 80%, transparent);
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .spin-needle::before, .spin-needle::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+    }
+
+    .spin-needle::before {
+      top: -1px;
+      border-bottom: 14px solid var(--gold);
+    }
+
+    .spin-needle::after {
+      bottom: -1px;
+      border-top: 14px solid var(--gold);
+    }
+
+    /* Fade masks on edges */
+    .spin-track-wrap::before, .spin-track-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 120px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .spin-track-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, #0a0a0a, transparent);
+    }
+
+    .spin-track-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, #0a0a0a, transparent);
+    }
+
+    .spin-track {
+      display: flex;
+      padding: 24px 0;
+      gap: 12px;
+      width: max-content;
+      will-change: transform;
+    }
+
+    .spin-card {
+      width: 160px;
+      height: 200px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-shrink: 0;
+      transition: border-color 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spin-card-emoji { font-size: 44px; }
+    .spin-card-name {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: center;
+      padding: 0 10px;
+      line-height: 1.4;
+    }
+
+    .spin-card.r-common { border-color: rgba(138,155,181,0.25); }
+    .spin-card.r-silver { border-color: rgba(184,200,216,0.35); box-shadow: inset 0 0 20px rgba(184,200,216,0.05); }
+    .spin-card.r-gold { border-color: rgba(201,169,110,0.5); box-shadow: inset 0 0 30px rgba(201,169,110,0.08); }
+    .spin-card.r-diamond { border-color: rgba(126,232,250,0.6); box-shadow: inset 0 0 40px rgba(126,232,250,0.1); }
+
+    .spin-card.landing {
+      transform: scale(1.05);
+      z-index: 5;
+    }
+
+    /* ---- OPEN BUTTON AREA ---- */
+    .open-action {
+      text-align: center;
+      padding: 32px 0 0;
+    }
+
+    .open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 56px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      border: none;
+      border-radius: 3px;
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      letter-spacing: 0.2em;
+      color: #0a0a0a;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .open-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+
+    .open-btn:hover::before { transform: translateX(100%); }
+    .open-btn:hover { box-shadow: 0 12px 40px rgba(201,169,110,0.5); transform: translateY(-2px); }
+    .open-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .open-btn.prem-btn {
+      background: linear-gradient(135deg, #c9a96e, #6e4fcf, #c9a96e);
+      background-size: 200% 100%;
+      animation: shimmerBtn 3s ease infinite;
+    }
+
+    @keyframes shimmerBtn {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .open-cost {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ---- RESULTS MODAL ---- */
+    .results-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s;
+      backdrop-filter: blur(8px);
+    }
+
+    .results-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .results-modal {
+      width: 900px;
+      max-width: 96vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: #0e0e0e;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 48px;
+      position: relative;
+      transform: scale(0.92);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .results-overlay.visible .results-modal {
+      transform: scale(1);
+    }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .results-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .results-sub { font-size: 14px; color: var(--text-dim); }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .result-item {
+      background: rgba(255,255,255,0.03);
+      border-radius: 3px;
+      padding: 24px 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .result-item.revealed { opacity: 1; transform: translateY(0); }
+
+    .result-item.r-common { border: 1px solid rgba(138,155,181,0.2); }
+    .result-item.r-silver { border: 1px solid rgba(184,200,216,0.4); box-shadow: 0 0 24px rgba(184,200,216,0.06); }
+    .result-item.r-gold { border: 1px solid rgba(201,169,110,0.5); box-shadow: 0 0 40px rgba(201,169,110,0.12); }
+    .result-item.r-diamond { border: 1px solid rgba(126,232,250,0.6); box-shadow: 0 0 60px rgba(126,232,250,0.15); animation: diamondPulse 2s ease-in-out infinite; }
+
+    @keyframes diamondPulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(126,232,250,0.15); }
+      50% { box-shadow: 0 0 80px rgba(126,232,250,0.3); }
+    }
+
+    .result-emoji { font-size: 48px; margin-bottom: 12px; display: block; }
+    .result-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .result-val { font-size: 12px; color: var(--text-muted); }
+
+    .results-total {
+      text-align: center;
+      padding: 24px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      margin-bottom: 28px;
+    }
+
+    .results-total-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .results-total-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .results-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    /* ---- GOLD/DIAMOND CELEBRATION ---- */
+    #celebCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 199;
+    }
+
+    /* ---- Near miss effect ---- */
+    .near-miss-banner {
+      display: none;
+      text-align: center;
+      padding: 12px;
+      background: rgba(201,169,110,0.08);
+      border: 1px solid rgba(201,169,110,0.25);
+      border-radius: 2px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--gold);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      animation: nearMissPulse 1s ease 3;
+    }
+
+    @keyframes nearMissPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .near-miss-banner.show { display: block; }
+
+    /* ---- Items rolling preview ---- */
+    .roll-preview {
+      margin-bottom: 28px;
+    }
+
+    .roll-preview-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="celebCanvas"></canvas>
+  <script src="./js/shared.js"></script>
+  <script>requireAuth(); buildNavbar('open');</script>
+
+  <div class="page-wrap">
+    <div class="section-header" style="text-align:center;margin-bottom:32px;">
+      <div class="section-eyebrow">Luck Keys</div>
+      <h1 class="section-title">Open Your Box</h1>
+      <p class="section-sub" style="text-align:center;max-width:480px;margin:8px auto 0;">Insert a key, watch the reveal, collect your rewards.</p>
+    </div>
+
+    <!-- Type selector -->
+    <div class="type-selector">
+      <div class="type-tab std active" id="tab-std" onclick="selectType('std')">
+        <span class="type-tab-icon">🔑</span>
+        <div>
+          <div class="type-tab-name">Standard</div>
+          <div class="type-tab-keys">You have <span id="tab-std-count">10</span> keys</div>
+        </div>
+      </div>
+      <div class="type-tab prem" id="tab-prem" onclick="selectType('prem')">
+        <span class="type-tab-icon">🗝️</span>
+        <div>
+          <div class="type-tab-name">Premium</div>
+          <div class="type-tab-keys">You have <span id="tab-prem-count">10</span> keys</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spin track -->
+    <div class="spin-arena">
+      <div class="spin-track-wrap" id="spinWrap">
+        <div class="spin-needle"></div>
+        <div class="spin-track" id="spinTrack"></div>
+      </div>
+      <div class="near-miss-banner" id="nearMissBanner">⚡ So close — Gold was just one away. Try again?</div>
+    </div>
+
+    <!-- Action -->
+    <div class="open-action">
+      <button class="open-btn" id="openBtn" onclick="startOpen()">
+        <span id="openBtnIcon">🔑</span>
+        <span id="openBtnText">Open Standard Box</span>
+      </button>
+      <div class="open-cost" id="openCost">Uses 1 Standard Key · 6 items revealed</div>
+    </div>
+  </div>
+
+  <!-- Results modal -->
+  <div class="results-overlay" id="resultsOverlay">
+    <div class="results-modal" id="resultsModal">
+      <div class="results-header">
+        <div class="results-title" id="resultsTitle">Box Opened</div>
+        <div class="results-sub" id="resultsSub">Here's what you found</div>
+      </div>
+      <div class="results-grid" id="resultsGrid"></div>
+      <div class="results-total">
+        <div class="results-total-label">Estimated Total Value</div>
+        <div class="results-total-val" id="resultsTotalVal">—</div>
+      </div>
+      <div class="results-actions">
+        <button class="btn btn-gold" onclick="closeResults()">Save to Inventory</button>
+        <button class="btn btn-outline" onclick="openAgain()">Open Another</button>
+        <button class="btn btn-ghost" onclick="window.location.href='inventory.html'">View Inventory</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---- State ----
+    let currentType = 'std';
+    let isSpinning = false;
+    let lastResults = [];
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('type') === 'premium') selectType('prem');
+
+    function selectType(type) {
+      currentType = type;
+      document.getElementById('tab-std').className = `type-tab std ${type === 'std' ? 'active' : ''}`;
+      document.getElementById('tab-prem').className = `type-tab prem ${type === 'prem' ? 'active' : ''}`;
+      const btn = document.getElementById('openBtn');
+      const icon = document.getElementById('openBtnIcon');
+      const text = document.getElementById('openBtnText');
+      const cost = document.getElementById('openCost');
+      if (type === 'prem') {
+        btn.className = 'open-btn prem-btn';
+        icon.textContent = '🗝️';
+        text.textContent = 'Open Premium Box';
+        cost.textContent = 'Uses 1 Premium Key · 6 items revealed · Enhanced odds';
+      } else {
+        btn.className = 'open-btn';
+        icon.textContent = '🔑';
+        text.textContent = 'Open Standard Box';
+        cost.textContent = 'Uses 1 Standard Key · 6 items revealed';
+      }
+      buildTrack();
+    }
+
+    // ---- Build the visual spin track (filler items) ----
+    const allItemsFlat = [
+      ...ITEMS.common.map(i => ({ ...i, rarity: 'common' })),
+      ...ITEMS.silver.map(i => ({ ...i, rarity: 'silver' })),
+      ...ITEMS.gold.map(i => ({ ...i, rarity: 'gold' })),
+      ...ITEMS.diamond.map(i => ({ ...i, rarity: 'diamond' })),
+    ];
+
+    function buildTrack() {
+      const track = document.getElementById('spinTrack');
+      track.style.transform = 'translateX(0)';
+      track.innerHTML = '';
+      // Generate 80 random items for visual track
+      const pool = [];
+      for (let i = 0; i < 80; i++) {
+        const r = Math.random();
+        let item;
+        if (r < 0.65) item = { ...ITEMS.common[Math.floor(Math.random() * ITEMS.common.length)], rarity: 'common' };
+        else if (r < 0.88) item = { ...ITEMS.silver[Math.floor(Math.random() * ITEMS.silver.length)], rarity: 'silver' };
+        else if (r < 0.97) item = { ...ITEMS.gold[Math.floor(Math.random() * ITEMS.gold.length)], rarity: 'gold' };
+        else item = { ...ITEMS.diamond[Math.floor(Math.random() * ITEMS.diamond.length)], rarity: 'diamond' };
+        pool.push(item);
+      }
+      pool.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `spin-card r-${item.rarity}`;
+        card.innerHTML = `
+          <span class="spin-card-emoji">${item.emoji || '💎'}</span>
+          <span class="spin-card-name">${item.name}</span>
+          <span class="rarity-badge ${getRarityClass(item.rarity)}" style="font-size:9px;">${item.rarity}</span>
+        `;
+        track.appendChild(card);
+      });
+    }
+
+    buildTrack();
+
+    // ---- The spin animation ----
+    function startOpen() {
+      if (isSpinning) return;
+      document.getElementById('nearMissBanner').classList.remove('show');
+
+      const keyCount = currentType === 'std' ? State.stdKeys : State.premKeys;
+      if (keyCount <= 0) {
+        showToast(`No ${currentType === 'std' ? 'Standard' : 'Premium'} keys. Buy some in the Store.`);
+        return;
+      }
+
+      // Deduct key
+      if (currentType === 'std') State.stdKeys = State.stdKeys - 1;
+      else State.premKeys = State.premKeys - 1;
+      refreshNavbar();
+      document.getElementById('tab-std-count').textContent = State.stdKeys;
+      document.getElementById('tab-prem-count').textContent = State.premKeys;
+
+      // Roll items
+      const items = currentType === 'std' ? openStandardBox() : openPremiumBox();
+      lastResults = items;
+
+      const track = document.getElementById('spinTrack');
+      const wrap = document.getElementById('spinWrap');
+      const cardWidth = 172; // 160 + 12 gap
+      const wrapWidth = wrap.offsetWidth;
+      const centerOffset = Math.floor(wrapWidth / 2 / cardWidth);
+
+      // Reset position
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(0)';
+
+      // We'll inject the result cards at positions 30-36 (the "landing zone")
+      const allCards = track.querySelectorAll('.spin-card');
+      // Re-seed last 6 positions with actual results
+      const targetIdx = 30;
+
+      // Inject real items from targetIdx
+      items.forEach((item, i) => {
+        const card = allCards[targetIdx + i];
+        if (!card) return;
+        card.className = `spin-card r-${item.rarity}`;
+        card.innerHTML = `
+          <span class="spin-card-emoji">${item.emoji || '💎'}</span>
+          <span class="spin-card-name">${item.name}</span>
+          <span class="rarity-badge ${getRarityClass(item.rarity)}" style="font-size:9px;">${item.rarity}</span>
+        `;
+      });
+
+      // Target: center card is at targetIdx + 2 (middle of 6)
+      const landingCard = targetIdx + 3;
+      const targetX = -(landingCard * cardWidth - wrapWidth / 2 + cardWidth / 2);
+
+      isSpinning = true;
+      document.getElementById('openBtn').disabled = true;
+
+      // Phase 1: Fast spin
+      requestAnimationFrame(() => {
+        track.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        track.style.transform = `translateX(${targetX + 800}px)`;
+
+        setTimeout(() => {
+          // Phase 2: Slow to final with near-miss feel
+          const hasNearMiss = !items.some(i => i.rarity === 'gold' || i.rarity === 'diamond') && Math.random() > 0.5;
+
+          track.style.transition = `transform ${hasNearMiss ? 4.5 : 3.8}s cubic-bezier(0.12, 0.6, 0.18, 1)`;
+          track.style.transform = `translateX(${targetX}px)`;
+
+          setTimeout(() => {
+            isSpinning = false;
+            document.getElementById('openBtn').disabled = false;
+
+            // Show near miss?
+            if (hasNearMiss) {
+              document.getElementById('nearMissBanner').classList.add('show');
+            }
+
+            // Check for gold/diamond
+            const bestRarity = items.reduce((best, i) => {
+              const order = { common: 0, silver: 1, gold: 2, diamond: 3 };
+              return order[i.rarity] > order[best] ? i.rarity : best;
+            }, 'common');
+
+            setTimeout(() => {
+              showResults(items, bestRarity);
+            }, 600);
+
+          }, hasNearMiss ? 4500 : 3800);
+        }, 800);
+      });
+    }
+
+    function showResults(items, bestRarity) {
+      const overlay = document.getElementById('resultsOverlay');
+      const grid = document.getElementById('resultsGrid');
+      const title = document.getElementById('resultsTitle');
+      const sub = document.getElementById('resultsSub');
+      const totalVal = document.getElementById('resultsTotalVal');
+
+      grid.innerHTML = '';
+
+      // Title by best rarity
+      if (bestRarity === 'diamond') {
+        title.innerHTML = '💎 Diamond Found!';
+        title.style.color = '#7ee8fa';
+        sub.textContent = 'Extraordinary. You\'ve uncovered a Diamond rarity item.';
+        launchCelebration('diamond');
+      } else if (bestRarity === 'gold') {
+        title.innerHTML = '✨ Gold Uncovered!';
+        title.style.color = '#c9a96e';
+        sub.textContent = 'Impressive find. A Gold rarity item has been added to your vault.';
+        launchCelebration('gold');
+      } else if (bestRarity === 'silver') {
+        title.textContent = 'Box Opened';
+        title.style.color = '#b8c8d8';
+        sub.textContent = 'Some solid silver finds in there.';
+      } else {
+        title.textContent = 'Box Opened';
+        title.style.color = '#f5f0e8';
+        sub.textContent = 'Not bad — keep opening for higher rarities.';
+      }
+
+      let total = 0;
+
+      items.forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = `result-item r-${item.rarity}`;
+        el.innerHTML = `
+          <span class="result-emoji">${item.emoji || '💎'}</span>
+          <div class="result-name">${item.name}</div>
+          <span class="rarity-badge ${getRarityClass(item.rarity)}">${item.rarity}</span>
+          <div class="result-val" style="margin-top:8px;">Est. £${item.value.toFixed(2)}</div>
+        `;
+        grid.appendChild(el);
+        total += item.value;
+
+        setTimeout(() => { el.classList.add('revealed'); }, i * 120 + 100);
+      });
+
+      totalVal.textContent = `£${total.toFixed(2)}`;
+      overlay.classList.add('visible');
+    }
+
+    function closeResults() {
+      lastResults.forEach(item => State.addItem(item));
+      document.getElementById('resultsOverlay').classList.remove('visible');
+      showToast(`✅ ${lastResults.length} items saved to inventory`, 'gold-toast');
+      buildTrack();
+    }
+
+    function openAgain() {
+      lastResults.forEach(item => State.addItem(item));
+      document.getElementById('resultsOverlay').classList.remove('visible');
+      buildTrack();
+    }
+
+    // ---- Celebration particle system ----
+    const celebCanvas = document.getElementById('celebCanvas');
+    const celebCtx = celebCanvas.getContext('2d');
+    let celebParticles = [];
+    let celebRunning = false;
+
+    function launchCelebration(type) {
+      celebCanvas.width = window.innerWidth;
+      celebCanvas.height = window.innerHeight;
+      celebParticles = [];
+      const count = type === 'diamond' ? 200 : 120;
+      const colors = type === 'diamond'
+        ? ['#7ee8fa', '#b8f0ff', '#ffffff', '#c9a96e', '#7ee8fa']
+        : ['#c9a96e', '#e8c97a', '#ffffff', '#ffd700', '#c9a96e'];
+
+      for (let i = 0; i < count; i++) {
+        celebParticles.push({
+          x: Math.random() * celebCanvas.width,
+          y: -20,
+          vx: (Math.random() - 0.5) * 6,
+          vy: Math.random() * 4 + 2,
+          size: Math.random() * 8 + 3,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 10,
+          shape: Math.random() > 0.5 ? 'rect' : 'circle',
+          alpha: 1,
+          decay: Math.random() * 0.01 + 0.005
+        });
+      }
+
+      if (!celebRunning) animateCeleb();
+    }
+
+    function animateCeleb() {
+      celebRunning = true;
+      celebCtx.clearRect(0, 0, celebCanvas.width, celebCanvas.height);
+      celebParticles = celebParticles.filter(p => p.alpha > 0.01);
+      celebParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.12;
+        p.rot += p.rotSpeed;
+        p.alpha -= p.decay;
+        celebCtx.save();
+        celebCtx.globalAlpha = p.alpha;
+        celebCtx.translate(p.x, p.y);
+        celebCtx.rotate(p.rot * Math.PI / 180);
+        celebCtx.fillStyle = p.color;
+        if (p.shape === 'rect') {
+          celebCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        } else {
+          celebCtx.beginPath();
+          celebCtx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          celebCtx.fill();
+        }
+        celebCtx.restore();
+      });
+      if (celebParticles.length > 0) requestAnimationFrame(animateCeleb);
+      else celebRunning = false;
+    }
+
+    // Update key counts
+    document.getElementById('tab-std-count').textContent = State.stdKeys;
+    document.getElementById('tab-prem-count').textContent = State.premKeys;
+  </script>
+
+<script>
+(function () {
+  var redirect = sessionStorage.redirect;
+  delete sessionStorage.redirect;
+  if (redirect && redirect !== location.href) {
+    history.replaceState(null, null, redirect);
+  }
+})();
+</script>
+
+</body>
+</html>

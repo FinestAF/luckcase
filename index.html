@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Luck Keys — Looklist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body { background: #0a0a0a; overflow: hidden; }
+
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Animated background orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: drift 12s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, #c9a96e, transparent); top: -200px; left: -100px; animation-delay: 0s; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, #6e4fcf, transparent); bottom: -150px; right: -100px; animation-delay: 4s; }
+    .orb-3 { width: 350px; height: 350px; background: radial-gradient(circle, #e8c97a, transparent); top: 40%; right: 20%; animation-delay: 2s; }
+
+    @keyframes drift {
+      from { transform: translate(0,0) scale(1); }
+      to { transform: translate(40px, 30px) scale(1.08); }
+    }
+
+    /* Particle field */
+    #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+    .login-card {
+      position: relative;
+      z-index: 10;
+      width: 480px;
+      max-width: 94vw;
+      padding: 56px 48px 48px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(201,169,110,0.25);
+      border-radius: 4px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 80px rgba(201,169,110,0.08), inset 0 1px 0 rgba(255,255,255,0.06);
+      animation: cardReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(30px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .login-logo .wordmark {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.35em;
+      color: #c9a96e;
+      text-transform: uppercase;
+    }
+
+    .login-logo .key-icon {
+      display: block;
+      font-size: 48px;
+      margin: 16px 0 8px;
+      animation: keyFloat 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px rgba(201,169,110,0.6));
+    }
+
+    @keyframes keyFloat {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-8px) rotate(5deg); }
+    }
+
+    .login-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 600;
+      color: #f5f0e8;
+      text-align: center;
+      margin: 0 0 4px;
+      letter-spacing: 0.02em;
+    }
+
+    .login-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      text-align: center;
+      margin: 0 0 36px;
+      letter-spacing: 0.04em;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 36px;
+      border: 1px solid rgba(201,169,110,0.12);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .stat-item {
+      flex: 1;
+      padding: 14px 12px;
+      text-align: center;
+      border-right: 1px solid rgba(201,169,110,0.12);
+    }
+    .stat-item:last-child { border-right: none; }
+
+    .stat-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #c9a96e;
+      display: block;
+    }
+
+    .stat-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 2px;
+      display: block;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      box-sizing: border-box;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,169,110,0.2);
+      border-radius: 2px;
+      padding: 14px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: #f5f0e8;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: rgba(201,169,110,0.6);
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.08);
+    }
+
+    .form-group input::placeholder { color: rgba(255,255,255,0.2); }
+
+    .btn-enter {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #c9a96e, #a8843e);
+      border: none;
+      border-radius: 2px;
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      color: #0a0a0a;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .btn-enter::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transition: left 0.4s;
+    }
+
+    .btn-enter:hover::before { left: 100%; }
+    .btn-enter:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(201,169,110,0.4); }
+    .btn-enter:active { transform: translateY(0); }
+
+    .login-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      line-height: 1.8;
+    }
+
+    .login-footer a { color: rgba(201,169,110,0.5); text-decoration: none; }
+
+    .rarity-peek {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .rarity-dot {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .rarity-dot span {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: block;
+    }
+    .rarity-dot.common span { background: #8a9bb5; }
+    .rarity-dot.silver span { background: #b8c8d8; box-shadow: 0 0 6px #b8c8d8; }
+    .rarity-dot.gold span { background: #c9a96e; box-shadow: 0 0 8px #c9a96e; }
+    .rarity-dot.diamond span { background: #7ee8fa; box-shadow: 0 0 10px #7ee8fa; }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="wordmark">Looklist</span>
+        <span class="key-icon">🗝️</span>
+      </div>
+
+      <h1 class="login-title">Luck Keys</h1>
+      <p class="login-sub">Beauty accessories. Every booking. Every key.</p>
+
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-val">14,821</span>
+          <span class="stat-label">Keys Opened</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">312</span>
+          <span class="stat-label">Diamonds Found</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val">£1.50</span>
+          <span class="stat-label">From</span>
+        </div>
+      </div>
+
+      <div class="rarity-peek">
+        <div class="rarity-dot common"><span></span>Common</div>
+        <div class="rarity-dot silver"><span></span>Silver</div>
+        <div class="rarity-dot gold"><span></span>Gold</div>
+        <div class="rarity-dot diamond"><span></span>Diamond</div>
+      </div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="usernameInput" placeholder="Enter your Looklist username" autocomplete="off" />
+      </div>
+
+      <button class="btn-enter" onclick="handleLogin()">Enter the Vault</button>
+
+      <div class="login-footer">
+        Keys are earned from completing bookings on <a href="#">looklist.co.uk</a><br>
+        Demo — inventory pre-loaded with 10 Standard + 10 Premium keys
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Particle canvas
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 1.5 + 0.3;
+        this.speedY = -(Math.random() * 0.4 + 0.1);
+        this.speedX = (Math.random() - 0.5) * 0.2;
+        this.opacity = Math.random() * 0.4 + 0.05;
+        this.gold = Math.random() > 0.7;
+      }
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        if (this.y < -5) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.gold ? `rgba(201,169,110,${this.opacity})` : `rgba(255,255,255,${this.opacity})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    function handleLogin() {
+      const username = document.getElementById('usernameInput').value.trim();
+      if (!username) {
+        document.getElementById('usernameInput').style.borderColor = 'rgba(255,80,80,0.6)';
+        document.getElementById('usernameInput').placeholder = 'Please enter a username to continue';
+        setTimeout(() => {
+          document.getElementById('usernameInput').style.borderColor = '';
+          document.getElementById('usernameInput').placeholder = 'Enter your Looklist username';
+        }, 2000);
+        return;
+      }
+      sessionStorage.setItem('lk_username', username);
+      sessionStorage.setItem('lk_lld', '250.00');
+      sessionStorage.setItem('lk_std_keys', '10');
+      sessionStorage.setItem('lk_prem_keys', '10');
+      sessionStorage.setItem('lk_inventory', JSON.stringify([]));
+      document.querySelector('.login-card').style.animation = 'cardReveal 0.4s cubic-bezier(0.16,1,0.3,1) reverse both';
+      setTimeout(() => { window.location.href = 'pages/hub.html'; }, 380);
+    }
+
+    document.getElementById('usernameInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  </script>
+
+<script>
+(function () {
+  var redirect = sessionStorage.redirect;
+  delete sessionStorage.redirect;
+  if (redirect && redirect !== location.href) {
+    history.replaceState(null, null, redirect);
+  }
+})();
+</script>
+
+</body>
+</html>
